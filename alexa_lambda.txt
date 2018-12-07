@@ -1,0 +1,276 @@
+"""
+This sample demonstrates a simple skill built with the Amazon Alexa Skills Kit.
+The Intent Schema, Custom Slots, and Sample Utterances for this skill, as well
+as testing instructions are located at http://amzn.to/1LzFrj6
+
+For additional samples, visit the Alexa Skills Kit Getting Started guide at
+http://amzn.to/1LGWsLG
+"""
+
+from __future__ import print_function
+import requests
+
+
+# --------------- Helpers that build all of the responses ----------------------
+
+def build_speechlet_response(title, output, reprompt_text, should_end_session):
+    return {
+        'outputSpeech': {
+            'type': 'PlainText',
+            'text': output
+        },
+        'card': {
+            'type': 'Simple',
+            'title': "SessionSpeechlet - " + title,
+            'content': "SessionSpeechlet - " + output
+        },
+        'reprompt': {
+            'outputSpeech': {
+                'type': 'PlainText',
+                'text': reprompt_text
+            }
+        },
+        'shouldEndSession': should_end_session
+    }
+
+
+def build_response(session_attributes, speechlet_response):
+    return {
+        'version': '1.0',
+        'sessionAttributes': '',
+        'response': speechlet_response
+    }
+
+
+# --------------- Functions that control the skill's behavior ------------------
+
+def get_welcome_response():
+    """ If we wanted to initialize the session to have some attributes we could
+    add those here
+    """
+
+    session_attributes = {}
+    card_title = "Welcome"
+    # If the user either does not reply to the welcome message or says something
+    # that is not understood, they will be prompted again with this text.
+    speech_output = "Welcome to the tv helper "
+    should_end_session = True
+    return build_response(session_attributes, build_speechlet_response(
+        card_title, speech_output, None, should_end_session))
+
+
+def handle_session_end_request():
+    card_title = "Session Ended"
+    speech_output = "Thank you for trying the Alexa Skills Kit sample. " \
+                    "Have a nice day! "
+    # Setting this to true ends the session and exits the skill.
+    should_end_session = True
+    return build_response({}, build_speechlet_response(
+        card_title, speech_output, None, should_end_session))
+
+
+
+
+def searchIntent(intent,session):
+    """ Sets the color in the session and prepares the speech to reply to the
+    user.
+    """
+    intent_title = intent['name']
+    session_attributes = {}
+    should_end_session = True
+    access_token=""
+    customer_id=""
+    if 'accessToken' in session['user']:
+        access_token = session['user']['accessToken']
+        customer_id = access_token.split('_')[1]
+        print(customer_id)
+    if 'value' in intent['slots']['appname']:
+        appname_value = intent['slots']['appname']['value']
+        speech_output = "I know your want search " + appname_value
+        reprompt_text = speech_output
+        parms = {'unitid': customer_id, 'version': '1.0', 'type': 'search', 'value': appname_value}
+    elif 'value' in intent['slots']['moviename']:
+        moviename_value = intent['slots']['moviename']['value']
+        speech_output = "I know your want search " + moviename_value
+        reprompt_text = speech_output
+        parms = {'unitid': customer_id, 'version': '1.0', 'type': 'search', 'value': moviename_value}
+    elif 'value' in intent['slots']['applicationname']:
+        moviename_value = intent['slots']['applicationname']['value']
+        speech_output = "I know your want search " + moviename_value
+        reprompt_text = speech_output
+        parms = {'unitid': customer_id, 'version': '1.0', 'type': 'search', 'value': moviename_value}
+    else:
+        speech_output = "Please try again."
+        reprompt_text = "Please try again."
+
+    return build_response(session_attributes, build_speechlet_response(
+        intent_title, speech_output, reprompt_text, should_end_session))
+
+
+def openAppIntent(intent,session):
+    """ Sets the color in the session and prepares the speech to reply to the
+    user.
+    """
+    intent_title = intent['name']
+    session_attributes = {}
+    should_end_session = True
+    access_token=""
+    customer_id=""
+    if 'accessToken' in session['user']:
+        access_token = session['user']['accessToken']
+        customer_id = access_token.split('_')[1]
+        print(customer_id)
+    if 'appname' in intent['slots']:
+        if 'value' in intent['slots']['appname']:
+            appname_value = intent['slots']['appname']['value']
+            speech_output = "I know your want open " + appname_value
+            reprompt_text = speech_output
+            print(appname_value)
+            parms = {'unitid': customer_id, 'version': '1.0', 'type': 'open', 'value': appname_value}
+        else:
+            speech_output = "Please try again."
+            reprompt_text = "Please try again."
+    return build_response(session_attributes, build_speechlet_response(
+        intent_title, speech_output, reprompt_text, should_end_session))
+
+def volumeIntent(intent,session):
+    """ Sets the color in the session and prepares the speech to reply to the
+    user.
+    """
+    intent_title = intent['name']
+    session_attributes = {}
+    should_end_session = True
+    access_token=""
+    customer_id=""
+    if 'accessToken' in session['user']:
+        access_token = session['user']['accessToken']
+        customer_id = access_token.split('_')[1]
+        print(customer_id)
+    if 'value' in intent['slots']['volumechange']:
+        volumechange = intent['slots']['volumechange']['value']
+        speech_output = "I know your want turn " + volumechange + " volume "
+        reprompt_text = speech_output
+    elif 'value' in intent['slots']['volumenumber']:
+        volumenumber = intent['slots']['volumenumber']['value']
+        speech_output = "I know your want turn  volume to " + volumenumber
+        reprompt_text = speech_output
+    else:
+        speech_output = "Please try again."
+        reprompt_text = "Please try again."
+    return build_response(session_attributes, build_speechlet_response(
+        intent_title, speech_output, reprompt_text, should_end_session))
+
+
+def channelIntent(intent,session):
+    """ Sets the color in the session and prepares the speech to reply to the
+    user.
+    """
+    intent_title = intent['name']
+    session_attributes = {}
+    should_end_session = True
+    access_token=""
+    customer_id=""
+    if 'accessToken' in session['user']:
+        access_token = session['user']['accessToken']
+        customer_id = access_token.split('_')[1]
+        print(customer_id)
+    if 'value' in intent['slots']['channelchange']:
+        channelchange_value = intent['slots']['channelchange']['value']
+        speech_output = "I know your want switch to " + channelchange_value + " channel"
+        reprompt_text = speech_output
+    elif 'value' in intent['slots']['channelnumber']:
+        channelnumber_value = intent['slots']['channelnumber']['value']
+        speech_output = "I know your want switch to " + channelnumber_value
+        reprompt_text = speech_output
+    else:
+        speech_output = "Please try again."
+        reprompt_text = "Please try again."
+    return build_response(session_attributes, build_speechlet_response(
+        intent_title, speech_output, reprompt_text, should_end_session))
+
+
+# --------------- Events ------------------
+
+def on_session_started(session_started_request, session):
+    """ Called when the session starts """
+
+    print("on_session_started requestId=" + session_started_request['requestId']
+          + ", sessionId=" + session['sessionId'])
+
+
+def on_launch(launch_request, session):
+    """ Called when the user launches the skill without specifying what they
+    want
+    """
+
+    print("on_launch requestId=" + launch_request['requestId'] +
+          ", sessionId=" + session['sessionId'])
+    # Dispatch to your skill's launch
+    return get_welcome_response()
+
+
+def on_intent(intent_request, session):
+    """ Called when the user specifies an intent for this skill """
+
+    print("on_intent requestId=" + intent_request['requestId'] +
+          ", sessionId=" + session['sessionId'])
+
+    intent = intent_request['intent']
+    intent_name = intent_request['intent']['name']
+    print("intent_name222=" + intent_name)
+    # Dispatch to your skill's intent handlers
+    if intent_name == "searchIntent":
+        return searchIntent(intent,session)
+    elif intent_name == "openAppIntent":
+        return openAppIntent(intent,session)
+    elif intent_name == "volumeIntent":
+        return volumeIntent(intent,session)
+    elif intent_name == "channelIntent":
+        return channelIntent(intent,session)
+    else:
+        raise ValueError("Invalid intent")
+
+
+def on_session_ended(session_ended_request, session):
+    """ Called when the user ends the session.
+
+    Is not called when the skill returns should_end_session=true
+    """
+    print("on_session_ended requestId=" + session_ended_request['requestId'] +
+          ", sessionId=" + session['sessionId'])
+    # add cleanup logic here
+
+
+# --------------- Main handler ------------------
+
+def lambda_handler(event, context):
+    """ Route the incoming request based on type (LaunchRequest, IntentRequest,
+    etc.) The JSON body of the request is provided in the event parameter.
+    """
+    print("event.session.application.applicationId=" +
+          event['session']['application']['applicationId'])
+
+    """
+    Uncomment this if statement and populate with your skill's application ID to
+    prevent someone else from configuring a skill that sends requests to this
+    function.
+    """
+    # if (event['session']['application']['applicationId'] !=
+    #         "amzn1.echo-sdk-ams.app.[unique-value-here]"):
+    #     raise ValueError("Invalid Application ID")
+
+    if 'accessToken' in event['session']['user']:
+        print("accessToken:")
+        print(event['session']['user']['accessToken'])
+    if 'accessToken' in event['context']['System']['user']:
+        print("accessToken:")
+        print(event['context']['System']['user']['accessToken'])
+    if event['session']['new']:
+        on_session_started({'requestId': event['request']['requestId']}, event['session'])
+    if event['request']['type'] == "LaunchRequest":
+        return on_launch(event['request'], event['session'])
+    elif event['request']['type'] == "IntentRequest":
+        return on_intent(event['request'], event['session'])
+    elif event['request']['type'] == "SessionEndedRequest":
+        return on_session_ended(event['request'], event['session'])
+
